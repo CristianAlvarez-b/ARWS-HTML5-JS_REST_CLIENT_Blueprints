@@ -32,9 +32,27 @@ var apiclient = (function () {
         });
     };
 
-    return {
-        getBlueprintsByAuthor: getBlueprintsByAuthor,
-        getBlueprintsByNameAndAuthor: getBlueprintsByNameAndAuthor
-    };
+    // Función para actualizar un plano existente
+   var updateBlueprint = function (blueprint, callback) {
+       $.ajax({
+           url: `/blueprints`,
+           type: 'PUT',
+           data: JSON.stringify(blueprint), // Convertir el objeto a JSON
+           contentType: "application/json"
+       })
+       .done(function (response) {
+           callback(response); // Pasar la respuesta al callback
+       })
+       .fail(function (jqXHR, textStatus, errorThrown) {
+           console.error("Error al actualizar el plano: " + textStatus, errorThrown);
+           callback(null);
+       });
+   };
+
+   return {
+       getBlueprintsByAuthor: getBlueprintsByAuthor,
+       getBlueprintsByNameAndAuthor: getBlueprintsByNameAndAuthor,
+       updateBlueprint: updateBlueprint // Exponer la nueva función
+   };
 
 })();
