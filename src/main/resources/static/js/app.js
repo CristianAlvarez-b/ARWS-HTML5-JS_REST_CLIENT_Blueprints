@@ -2,10 +2,11 @@
 var api = apiclient; // Cambiar entre apimock y apiclient según sea necesario
 
 var app = (function () {
-
     // Estado privado del módulo
     var authorName = '';
     var blueprintsList = [];
+    var points = []; // Arreglo para almacenar los puntos capturados
+    var currentBlueprintName = ''; // Nombre del plano actual
 
     // Operación pública para cambiar el autor seleccionado
     var setAuthorName = function (newAuthorName) {
@@ -28,7 +29,7 @@ var app = (function () {
             if (blueprints) {
                 // Actualizar la tabla de planos
                 blueprintsList = blueprints.map(function (blueprint) {
-                    return {name: blueprint.name, points: blueprint.points.length};
+                    return { name: blueprint.name, points: blueprint.points.length };
                 });
 
                 // Limpiar la tabla antes de llenarla
@@ -62,6 +63,8 @@ var app = (function () {
 
     // Operación pública para dibujar un plano
     var drawBlueprint = function (author, blueprintName) {
+        currentBlueprintName = blueprintName; // Guardamos el nombre del plano actual
+        points = []; // Reiniciar puntos cuando se dibuja un nuevo plano
         api.getBlueprintsByNameAndAuthor(author, blueprintName, function (blueprint) {
             if (blueprint) {
                 var canvas = document.getElementById("blueprintCanvas");
@@ -71,22 +74,69 @@ var app = (function () {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
                 // Dibujar los puntos del plano
-                var points = blueprint.points;
-                if (points.length > 0) {
+                var blueprintPoints = blueprint.points; // Usar variable diferente para evitar conflicto
+                if (blueprintPoints.length > 0) {
                     ctx.beginPath();
-                    ctx.moveTo(points[0].x, points[0].y);
-                    for (var i = 1; i < points.length; i++) {
-                        ctx.lineTo(points[i].x, points[i].y);
+                    ctx.moveTo(blueprintPoints[0].x, blueprintPoints[0].y);
+                    for (var i = 1; i < blueprintPoints.length; i++) {
+                        ctx.lineTo(blueprintPoints[i].x, blueprintPoints[i].y);
                     }
                     ctx.stroke();
                 }
 
                 // Actualizar el campo del plano que se está dibujando
-                $("#currentBlueprint").text("Current blueprint: " + blueprintName);
+                $("#selectedBlueprint").text("Current blueprint: " + blueprintName);
+                points = blueprintPoints.slice(); // Guardar los puntos del blueprint actual en la variable global
             } else {
                 console.error("No se pudo dibujar el plano");
             }
         });
+    };
+
+    // Inicializar los manejadores de eventos
+    var initCanvasEvents = function () {
+        var canvas = document.getElementById("blueprintCanvas");
+
+        // Manejar eventos de mouse/touch
+        if (window.PointerEvent) {
+            canvas.addEventListener("pointerdown", handleCanvasClick);
+        } else {
+            canvas.addEventListener("mousedown", handleCanvasClick);
+        }
+    };
+
+    // Función para manejar los clics en el canvas
+    var handleCanvasClick = function (event) {
+        if (currentBlueprintName) { // Asegurarse de que hay un blueprint seleccionado
+            var rect = event.target.getBoundingClientRect();
+            var x = event.clientX - rect.left; // Obtener coordenadas del canvas
+            var y = event.clientY - rect.top;
+
+            // Agregar el nuevo punto al arreglo
+            points.push({ x: x, y: y });
+
+            // Repintar el canvas
+            repaintedCanvas();
+        }
+    };
+
+    // Función para repintar el canvas con los puntos actuales
+    var repaintedCanvas = function () {
+        var canvas = document.getElementById("blueprintCanvas");
+        var ctx = canvas.getContext("2d");
+
+        // Limpiar el canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Dibujar los puntos del plano actual
+        if (points.length > 0) {
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+            for (var i = 1; i < points.length; i++) {
+                ctx.lineTo(points[i].x, points[i].y);
+            }
+            ctx.stroke();
+        }
     };
 
     // Registrar eventos después de que el DOM esté listo
@@ -96,6 +146,7 @@ var app = (function () {
                 var author = $("#author").val();
                 updateBlueprintsList(author);
             });
+            initCanvasEvents(); // Inicializar eventos del canvas
         });
     };
 
@@ -104,7 +155,6 @@ var app = (function () {
         updateBlueprintsList: updateBlueprintsList,
         drawBlueprint: drawBlueprint
     };
-
 })();
 
 // Inicializar el módulo al cargar la página
