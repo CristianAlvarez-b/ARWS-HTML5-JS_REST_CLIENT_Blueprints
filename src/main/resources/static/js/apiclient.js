@@ -48,13 +48,28 @@ var apiclient = (function () {
            callback(null);
        });
    };
+     var deleteBlueprint = function (blueprint, callback) {
+         $.ajax({
+             url: `/blueprints`, // Asegúrate de que este endpoint sea correcto
+             type: 'DELETE',
+             data: JSON.stringify(blueprint), // Enviar el objeto como JSON
+             contentType: "application/json"
+         })
+         .done(function (response) {
+             callback(response); // Pasar la respuesta al callback
+         })
+         .fail(function (jqXHR, textStatus, errorThrown) {
+             console.error("Error al eliminar el plano: " + textStatus, errorThrown);
+             callback(null);
+         });
+     };
 
 
    return {
        getBlueprintsByAuthor: getBlueprintsByAuthor,
        getBlueprintsByNameAndAuthor: getBlueprintsByNameAndAuthor,
        updateBlueprint: updateBlueprint, // Exponer la nueva función
-
+       deleteBlueprint: deleteBlueprint
    };
 
 })();

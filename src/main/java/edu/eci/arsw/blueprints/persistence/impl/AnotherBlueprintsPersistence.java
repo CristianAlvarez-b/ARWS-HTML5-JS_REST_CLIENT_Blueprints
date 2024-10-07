@@ -35,4 +35,9 @@ public class AnotherBlueprintsPersistence implements BlueprintsPersistence {
     public void updateBlueprint(Blueprint blueprint) {
 
     }
+
+    @Override
+    public void deteleBlueprint(Blueprint blueprint) throws BlueprintPersistenceException {
+
+    }
 }

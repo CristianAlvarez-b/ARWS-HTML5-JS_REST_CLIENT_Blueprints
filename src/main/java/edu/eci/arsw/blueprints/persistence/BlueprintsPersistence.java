@@ -35,4 +35,5 @@ public interface BlueprintsPersistence {
     public Set<Blueprint> getAllBlueprints();
 
     public void updateBlueprint(Blueprint blueprint) throws BlueprintPersistenceException;
+    public void deteleBlueprint(Blueprint blueprint) throws BlueprintPersistenceException;
 }

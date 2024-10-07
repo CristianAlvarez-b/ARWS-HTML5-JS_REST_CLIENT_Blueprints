@@ -76,4 +76,7 @@ public class BlueprintsServices {
     public void updateBlueprint(Blueprint blueprint) throws BlueprintPersistenceException {
         bpp.updateBlueprint(blueprint);
     }
+    public void deleteBlueprint(Blueprint blueprint) throws BlueprintPersistenceException{
+        bpp.deteleBlueprint(blueprint);
+    }
 }

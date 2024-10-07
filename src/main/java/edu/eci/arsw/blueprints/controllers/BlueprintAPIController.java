@@ -77,7 +77,15 @@ public class BlueprintAPIController {
                 return new ResponseEntity<>("Resource Not Created ", HttpStatus.FORBIDDEN);
             }
         }
-
+    }
+    @DeleteMapping
+    public ResponseEntity<?> deleteBlueprint(@RequestBody Blueprint blueprint){
+        try {
+            blueprintsServices.deleteBlueprint(blueprint);
+            return new ResponseEntity<>("Resource Deleted", HttpStatus.OK);
+        }catch (BlueprintPersistenceException e){
+            return new ResponseEntity<>("Resource Not Deleted", HttpStatus.BAD_REQUEST);
+        }
     }
 }
 

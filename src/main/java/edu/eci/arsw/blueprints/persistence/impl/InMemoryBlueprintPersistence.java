@@ -102,4 +102,21 @@ public class InMemoryBlueprintPersistence implements BlueprintsPersistence{
         }
     }
 
+    @Override
+    public void deteleBlueprint(Blueprint bp) throws BlueprintPersistenceException {
+        // Crear la clave para buscar el blueprint
+        Tuple<String, String> key = new Tuple<>(bp.getAuthor(), bp.getName());
+
+        // Obtener el blueprint antes de eliminarlo
+        Blueprint blueprintToRemove = blueprints.get(key);
+
+        // Intentar eliminar el blueprint del mapa
+        boolean removed = blueprints.remove(key, blueprintToRemove);
+
+        // Verificar si el blueprint fue encontrado y eliminado
+        if (!removed) {
+            throw new BlueprintPersistenceException("Blueprint not found for author: " + bp.getAuthor() + " and name: " + bp.getName());
+        }
+    }
+
 }
