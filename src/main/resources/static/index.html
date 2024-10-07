@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>Blueprints</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="/webjars/jquery/jquery.min.js"></script>
+    <script src="/webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="container">
+
+
+<div class="form-group">
+    <h1>Blueprints</h1>
+    <label for="author">Author</label>
+    <input type="text" id="author" name="author" class="form-control" placeholder="Enter the author's name">
+    <button id="getBlueprints" class="btn btn-primary">Get blueprints</button>
+</div>
+
+<div class="bottom">
+    <div class="points-group">
+        <h2 id="selectedAuthor" class="mt-4">Not author selected yet. </h2>
+        
+        <table id="blueprintsTable" class="table table-bordered mt-4">
+            <thead class="thead-dark">
+            <tr>
+                <th>Blueprint Name</th>
+                <th>Number of Points</th>
+                <th>Draw</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        <h2>Total user points: <span id="totalPoints">0</span></h2>
+    </div>
+    
+    <div id="canvasContainer">
+        <h3 id="selectedBlueprint">Current blueprint: No one</h3>
+        <canvas id="blueprintCanvas" width="500" height="400"></canvas>
+    </div>
+</div>
+
+
+<script src="js/apimock.js"></script>
+<script src="js/apiclient.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

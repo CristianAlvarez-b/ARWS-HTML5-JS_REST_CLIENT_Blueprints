@@ -1,0 +1,21 @@
+- Condiciones de carrera con HashMap
+  Cuando usabamos un HashMap en un entorno concurrente, varias condiciones de carrera podrían haberse presentado, ya que HashMap no es seguro para su uso con múltiples hilos. Las posibles condiciones de carrera que identificamos son:
+
+  - Si dos o más hilos intentaban modificar el HashMap al mismo tiempo (por ejemplo, al agregar o actualizar Blueprints), esto podría corromper la estructura interna del mapa. Esto puede provocar la pérdida de datos, referencias incorrectas, o incluso que el programa deje de funcionar correctamente.
+  - Si un hilo estaba leyendo el HashMap mientras otro hilo lo modificaba, el hilo lector podría recibir datos inconsistentes o corrompidos. Dado que las operaciones de lectura y escritura no están sincronizadas, el estado del mapa puede cambiar inesperadamente.
+  - Dado que HashMap no garantiza atomicidad, dos hilos podrían intentar actualizar el mismo valor simultáneamente, lo que podría resultar en que una de las actualizaciones se pierda.
+
+- Regiones críticas
+  Las regiones críticas en el código con HashMap se presentan en todas las operaciones que interactúan con la estructura del mapa, las cuales son:
+  
+  Método saveBlueprint: Si dos hilos intentaban guardar planos al mismo tiempo, especialmente si usaban la misma clave, se podría corromper el mapa o sobrescribir valores de manera inconsistente.
+  
+  Método getBlueprintsByAuthor: Si un hilo estaba leyendo mientras otro hilo modificaba el mapa, podría obtener datos inconsistentes o un estado parcial del mapa.
+  
+  Método updateBlueprint: Si dos hilos intentaban actualizar el mismo Blueprint, podrían sobrescribirse mutuamente o producir resultados inesperados.
+
+- Solución:
+  Decidimos cambiar la colección a ConcurrentHashMap, con esta elección se resuelven las condiciones de carrera porque ConcurrentHashMap está diseñado para ser seguro en entornos concurrentes. Las regiones críticas ahora se gestionan correctamente, ya que ConcurrentHashMap
+  
+  - Maneja escritura concurrente con operaciones como putIfAbsent y replace que están garantizadas para ser atómicas. Esto significa que si varios hilos intentan modificar la estructura del mapa, cada operación se ejecuta de forma segura sin interferencias.
+  - Las operaciones de lectura son seguras y se pueden realizar sin bloquear.
