@@ -64,13 +64,40 @@ input[type="text"] {
 
 
 #canvasContainer {
-
+    
     margin-top: 20px;
     text-align: center;
     padding: 10px;
 
 }
+#canvasContainer #createNewBlueprint{
+    background-color: rgb(226, 100, 100);
+    font-family: Century Gothic, CenturyGothic, AppleGothic, sans-serif;
+    border: none;
+    color: white;
+    height: 45px;
+    margin-left: 30px;
+    border-radius: 10px;
+}
+#canvasContainer .buttons #saveUpdate{
+    font-family: Century Gothic, CenturyGothic, AppleGothic, sans-serif;
+    background-color: #8ebe3c;
+    border: none;
+    color: white;
+    height: 45px;
+    margin-left: 30px;
+    border-radius: 10px;
+}
 
+#canvasContainer .buttons #deleteBlueprint{
+    font-family: Century Gothic, CenturyGothic, AppleGothic, sans-serif;
+    background-color: rgb(250, 0, 0);
+    border: none;
+    color: white;
+    height: 45px;
+    margin-left: 30px;
+    border-radius: 10px;
+}
 
 #blueprintCanvas {
     max-width: 100%;
