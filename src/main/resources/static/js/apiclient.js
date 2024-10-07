@@ -49,10 +49,12 @@ var apiclient = (function () {
        });
    };
 
+
    return {
        getBlueprintsByAuthor: getBlueprintsByAuthor,
        getBlueprintsByNameAndAuthor: getBlueprintsByNameAndAuthor,
-       updateBlueprint: updateBlueprint // Exponer la nueva función
+       updateBlueprint: updateBlueprint, // Exponer la nueva función
+
    };
 
 })();
