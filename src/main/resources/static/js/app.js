@@ -25,75 +25,86 @@ var app = (function () {
             return; // Salir de la función
         }
 
-        api.getBlueprintsByAuthor(authorName, function (blueprints) {
-            if (blueprints) {
-                // Actualizar la tabla de planos
-                blueprintsList = blueprints.map(function (blueprint) {
-                    return { name: blueprint.name, points: blueprint.points.length };
-                });
+        api.getBlueprintsByAuthor(authorName)
+            .then(blueprints => {
+                if (blueprints) {
+                    // Actualizar la lista de planos
+                    blueprintsList = blueprints.map(blueprint => {
+                        return { name: blueprint.name, points: blueprint.points.length };
+                    });
 
-                // Limpiar la tabla antes de llenarla
-                $("#blueprintsTable tbody").empty();
+                    // Limpiar la tabla antes de llenarla
+                    $("#blueprintsTable tbody").empty();
 
-                // Añadir cada plano a la tabla
-                blueprintsList.map(function (blueprint) {
-                    var row = `<tr>
-                        <td>${blueprint.name}</td>
-                        <td>${blueprint.points}</td>
-                        <td><button class="btn btn-primary" onclick="app.drawBlueprint('${authorName}', '${blueprint.name}')">Open</button></td>
-                    </tr>`;
-                    $("#blueprintsTable tbody").append(row);
-                });
+                    // Añadir cada plano a la tabla
+                    blueprintsList.forEach(blueprint => {
+                        const row = `<tr>
+                            <td>${blueprint.name}</td>
+                            <td>${blueprint.points}</td>
+                            <td><button class="btn btn-primary" onclick="app.drawBlueprint('${authorName}', '${blueprint.name}')">Open</button></td>
+                        </tr>`;
+                        $("#blueprintsTable tbody").append(row);
+                    });
 
-                // Calcular el total de puntos
-                var totalPoints = blueprints.reduce(function (total, blueprint) {
-                    return total + blueprint.points.length;
-                }, 0);
+                    // Calcular el total de puntos
+                    const totalPoints = blueprints.reduce((total, blueprint) => {
+                        return total + blueprint.points.length;
+                    }, 0);
 
-                // Actualizar el campo del total de puntos
-                $("#totalPoints").text(totalPoints);
-                $("#selectedAuthor").text(authorName + "'s blueprints");
-            } else {
+                    // Actualizar el campo del total de puntos
+                    $("#totalPoints").text(totalPoints);
+                    $("#selectedAuthor").text(`${authorName}'s blueprints`);
+                } else {
+                    $("#blueprintsTable tbody").empty();
+                    $("#totalPoints").text(0);
+                    $("#selectedAuthor").text("Author not found");
+                }
+            })
+            .catch(error => {
+                console.log("No hay planos asociados para el autor:", error);
                 $("#blueprintsTable tbody").empty();
                 $("#totalPoints").text(0);
-                $("#selectedAuthor").text("Author not found"); // Cambia a inglés
-            }
-        });
+                $("#selectedAuthor").text("Not Blueprint's found for this author");
+            });
     };
 
     // Operación pública para dibujar un plano
     var drawBlueprint = function (author, blueprintName) {
         currentBlueprintName = blueprintName; // Guardamos el nombre del plano actual
         points = []; // Reiniciar puntos cuando se dibuja un nuevo plano
-        api.getBlueprintsByNameAndAuthor(author, blueprintName, function (blueprint) {
-            if (blueprint) {
-                var canvas = document.getElementById("blueprintCanvas");
-                var ctx = canvas.getContext("2d");
+        api.getBlueprintsByNameAndAuthor(author, blueprintName)
+            .then(blueprint => {
+                if (blueprint) {
+                    const canvas = document.getElementById("blueprintCanvas");
+                    const ctx = canvas.getContext("2d");
 
-                // Limpiar el canvas
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    // Limpiar el canvas
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                // Dibujar los puntos del plano
-                var blueprintPoints = blueprint.points; // Usar variable diferente para evitar conflicto
-                if (blueprintPoints.length > 0) {
-                    ctx.beginPath();
-                    ctx.moveTo(blueprintPoints[0].x, blueprintPoints[0].y);
-                    for (var i = 1; i < blueprintPoints.length; i++) {
-                        ctx.lineTo(blueprintPoints[i].x, blueprintPoints[i].y);
+                    // Dibujar los puntos del plano
+                    const blueprintPoints = blueprint.points; // Usar variable diferente para evitar conflicto
+                    if (blueprintPoints.length > 0) {
+                        ctx.beginPath();
+                        ctx.moveTo(blueprintPoints[0].x, blueprintPoints[0].y);
+                        for (let i = 1; i < blueprintPoints.length; i++) {
+                            ctx.lineTo(blueprintPoints[i].x, blueprintPoints[i].y);
+                        }
+                        ctx.stroke();
                     }
-                    ctx.stroke();
+
+                    // Actualizar el campo del plano que se está dibujando
+                    $("#selectedBlueprint").text("Current blueprint: " + blueprintName);
+                    points = blueprintPoints.slice(); // Guardar los puntos del blueprint actual en la variable global
+
+                    // Habilitar el canvas para continuar dibujando
+                    initCanvasEvents();
+                } else {
+                    console.error("No se pudo dibujar el plano");
                 }
-
-                // Actualizar el campo del plano que se está dibujando
-                $("#selectedBlueprint").text("Current blueprint: " + blueprintName);
-                points = blueprintPoints.slice(); // Guardar los puntos del blueprint actual en la variable global
-
-                // Habilitar el canvas para continuar dibujando
-                initCanvasEvents();
-            } else {
-                console.error("No se pudo dibujar el plano");
-            }
-        });
+            })
+            .catch(error => {
+                console.error("Error al obtener el plano:", error);
+            });
     };
 
     // Función para guardar/actualizar el plano
@@ -111,54 +122,74 @@ var app = (function () {
         };
 
         // Hacer el PUT a la API
-        api.updateBlueprint(blueprintToUpdate, function(response) {
-            if (response) {
-                console.log(response); // Manejar la respuesta del servidor
-                // Hacer un GET para obtener todos los planos de nuevo
-                api.getBlueprintsByAuthor(authorName, function (blueprints) {
-                    if (blueprints) {
-                        // Actualizar la tabla de planos
-                        updateBlueprintsList(authorName);
-                        // Calcular el total de puntos
-                        var totalPoints = blueprints.reduce(function (total, blueprint) {
-                            return total + blueprint.points.length;
-                        }, 0);
-                        $("#totalPoints").text(totalPoints);
-                    } else {
-                        console.error("No se pudo obtener la lista de planos después de la actualización.");
-                    }
-                });
-            } else {
-                alert("Error al actualizar el plano.");
-            }
-        });
+        api.updateBlueprint(blueprintToUpdate)
+            .then(response => {
+                if (response) {
+                    console.log(response); // Manejar la respuesta del servidor
+
+                    // Hacer un GET para obtener todos los planos de nuevo
+                    return api.getBlueprintsByAuthor(authorName);
+                } else {
+                    throw new Error("Error al actualizar el plano.");
+                }
+            })
+            .then(blueprints => {
+                if (blueprints) {
+                    // Actualizar la tabla de planos
+                    updateBlueprintsList(authorName);
+
+                    // Calcular el total de puntos
+                    var totalPoints = blueprints.reduce((total, blueprint) => {
+                        return total + blueprint.points.length;
+                    }, 0);
+                    $("#totalPoints").text(totalPoints);
+                } else {
+                    console.error("No se pudo obtener la lista de planos después de la actualización.");
+                }
+            })
+            .catch(error => {
+                alert(error.message);
+                console.error("Error en el proceso de guardar o actualizar el plano:", error);
+            });
     };
+
+   // Función para obtener y actualizar la lista de blueprints
    // Función para obtener y actualizar la lista de blueprints
    function updateBlueprintsList(authorName) {
        // Hacer un GET para obtener todos los planos de un autor
-       api.getBlueprintsByAuthor(authorName, function (blueprints) {
-           const tableBody = $("#blueprintsTable tbody");
-           tableBody.empty(); // Limpiar la tabla antes de agregar nuevos elementos
+       api.getBlueprintsByAuthor(authorName)
+           .then(blueprints => {
+               const tableBody = $("#blueprintsTable tbody");
+               tableBody.empty(); // Limpiar la tabla antes de agregar nuevos elementos
 
-           if (blueprints && blueprints.length > 0) {
-               // Si hay planos, agregarlos a la tabla
-               blueprints.forEach(blueprint => {
-                   const row = `<tr>
-                       <td>${blueprint.name}</td>
-                       <td>${blueprint.author}</td>
-                       <td>${blueprint.points.length}</td>
-                       <td><button onclick="selectBlueprint('${blueprint.name}')">Select</button></td>
+               if (blueprints && blueprints.length > 0) {
+                   // Si hay planos, agregarlos a la tabla
+                   blueprints.forEach(blueprint => {
+                       const row = `<tr>
+                           <td>${blueprint.name}</td>
+                           <td>${blueprint.author}</td>
+                           <td>${blueprint.points.length}</td>
+                           <td><button onclick="selectBlueprint('${blueprint.name}')">Select</button></td>
+                       </tr>`;
+                       tableBody.append(row); // Agregar nueva fila a la tabla
+                   });
+               } else {
+                   // Si no hay planos, mostrar mensaje
+                   const messageRow = `<tr>
+                       <td colspan="4">No blueprints found for this author.</td>
                    </tr>`;
-                   tableBody.append(row); // Agregar nueva fila a la tabla
-               });
-           } else {
-               // Si no hay planos, mostrar mensaje
+                   tableBody.append(messageRow); // Mostrar mensaje de tabla vacía
+               }
+           })
+           .catch(error => {
+               console.error("Error al obtener los blueprints:", error);
+               const tableBody = $("#blueprintsTable tbody");
+               tableBody.empty(); // Limpiar la tabla en caso de error
                const messageRow = `<tr>
-                   <td colspan="4">No blueprints found for this author.</td>
+                   <td colspan="4">Error al cargar los blueprints. Inténtalo de nuevo más tarde.</td>
                </tr>`;
-               tableBody.append(messageRow); // Mostrar mensaje de tabla vacía
-           }
-       });
+               tableBody.append(messageRow); // Mostrar mensaje de error
+           });
    }
 
    // Llamada para actualizar la lista de blueprints después de eliminar
@@ -169,54 +200,45 @@ var app = (function () {
            return; // Salir si no hay un blueprint seleccionado
        }
 
-       // Hacer GET para obtener el blueprint seleccionado
-       $.ajax({
-           url: `/blueprints/${authorName}/${currentBlueprintName}`, // Obtener el blueprint por autor y nombre
-           type: 'GET',
-           contentType: "application/json"
-       })
-       .done(function (blueprint) {
-           // Confirmar la acción
-           if (confirm("Are you sure you want to delete the blueprint: " + currentBlueprintName + "?")) {
-               // Crear el objeto blueprint que se enviará a la API para eliminar
-               var blueprintToDelete = {
-                   author: blueprint.author,
-                   name: blueprint.name,
-                   points: blueprint.points
-               };
+       // Hacer GET para obtener el blueprint seleccionado utilizando la función de apiclient
+       api.getBlueprintsByNameAndAuthor(authorName, currentBlueprintName)
+           .then(blueprint => {
+               // Confirmar la acción
+               if (confirm("Are you sure you want to delete the blueprint: " + currentBlueprintName + "?")) {
+                   // Crear el objeto blueprint que se enviará a la API para eliminar
+                   var blueprintToDelete = {
+                       author: blueprint.author,
+                       name: blueprint.name,
+                       points: blueprint.points
+                   };
 
-               // Hacer DELETE de la API
-               $.ajax({
-                   url: `/blueprints`,
-                   type: 'DELETE',
-                   data: JSON.stringify(blueprintToDelete),
-                   contentType: "application/json"
-               })
-               .done(function (response) {
-                   console.log(response); // Manejar la respuesta del servidor
+                   // Hacer DELETE utilizando la función de apiclient
+                   return api.deleteBlueprint(blueprintToDelete);
+               } else {
+                   return Promise.reject("Deletion cancelled."); // Cancelar la promesa si el usuario no confirma
+               }
+           })
+           .then(response => {
+               console.log(response); // Manejar la respuesta del servidor
 
-                   // Borrar el canvas
-                   var canvas = document.getElementById("blueprintCanvas");
-                   var ctx = canvas.getContext("2d");
-                   ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpiar el canvas
+               // Borrar el canvas
+               var canvas = document.getElementById("blueprintCanvas");
+               var ctx = canvas.getContext("2d");
+               ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpiar el canvas
 
-                   // Actualizar la lista de blueprints
-                   updateBlueprintsList(authorName); // Asegúrate de pasar el nombre del autor correcto
+               // Actualizar la lista de blueprints
+               updateBlueprintsList(authorName); // Asegúrate de pasar el nombre del autor correcto
 
-                   // Reiniciar el nombre del blueprint actual
-                   currentBlueprintName = '';
-                   $("#selectedBlueprint").text("Current blueprint: None"); // Actualizar la interfaz
-               })
-               .fail(function (jqXHR, textStatus, errorThrown) {
-                   console.error("Error al eliminar el plano: " + textStatus, errorThrown);
+               // Reiniciar el nombre del blueprint actual
+               currentBlueprintName = '';
+               $("#selectedBlueprint").text("Current blueprint: None"); // Actualizar la interfaz
+           })
+           .catch(error => {
+               if (error !== "Deletion cancelled.") {
+                   console.error("Error al eliminar el plano:", error);
                    alert("Error al eliminar el blueprint.");
-               });
-           }
-       })
-       .fail(function (jqXHR, textStatus, errorThrown) {
-           console.error("Error al obtener el plano: " + textStatus, errorThrown);
-           alert("No se pudo obtener el blueprint para eliminar.");
-       });
+               }
+           });
    };
 
     var createNewBlueprint = function () {
