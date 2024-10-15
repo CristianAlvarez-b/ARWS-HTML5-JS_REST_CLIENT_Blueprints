@@ -46,3 +46,12 @@ https://github.com/user-attachments/assets/7e26da43-64f5-49e6-a578-9e5cb7e1405b
 2. Abre el archivo `index.html` en un navegador web para acceder a la aplicación usando la URL http://localhost:8080/index.html.
 3. Utiliza los botones y campos para gestionar autores y planos.
 
+## Criterios de evaluación
+1. **Funcional**
+    - La aplicación carga y dibuja correctamente los planos.
+    - La aplicación actualiza la lista de planos cuando se crea y almacena (a través del API) uno nuevo.
+    - La aplicación permite modificar planos existentes.
+    - La aplicación calcula correctamente los puntos totales.
+2. **Diseño**
+    - Los callback usados al momento de cargar los planos y calcular los puntos de un autor NO hace uso de ciclos, sino de operaciones map/reduce.
+    - Las operaciones de actualización y borrado hacen uso de promesas para garantizar que el cálculo del puntaje se realice sólo hasta cando se hayan actualizados los datos en el backend. Si se usan callbacks anidados se evalúa como R.
