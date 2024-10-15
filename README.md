@@ -1,3 +1,5 @@
+# Autores
+## Cristian Alvarez - Juliana Briceño
 # Blueprints
 
 ## Descripción
