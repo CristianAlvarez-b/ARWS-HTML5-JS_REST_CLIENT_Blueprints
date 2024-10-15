@@ -35,11 +35,12 @@ https://github.com/user-attachments/assets/7e26da43-64f5-49e6-a578-9e5cb7e1405b
 - **Backend:** Spring Boot (para los servicios REST).
 
 ## Requisitos Previos
+- Ejecutar el backend de la aplicación con Java 8.
 - Tener el backend de la aplicación ejecutándose, ya que el cliente web se comunica con los servicios REST de Spring Boot.
 - Un navegador web moderno para acceder al cliente.
 
 ## Cómo Ejecutar
-1. Asegúrate de que el backend de Spring Boot esté en ejecución.
-2. Abre el archivo `index.html` en un navegador web para acceder a la aplicación.
+1. Asegúrate de que el backend de Spring Boot esté en ejecución en Java 8.
+2. Abre el archivo `index.html` en un navegador web para acceder a la aplicación usando la URL http://localhost:8080/index.html.
 3. Utiliza los botones y campos para gestionar autores y planos.
 
