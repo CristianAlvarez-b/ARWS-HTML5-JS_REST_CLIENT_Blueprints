@@ -4,7 +4,11 @@
 Blueprints es una aplicación web que permite la gestión y edición de planos. El cliente web interactúa con un backend desarrollado en Spring Boot, que proporciona los servicios REST necesarios para obtener, crear, actualizar y eliminar planos y autores. La interfaz facilita la visualización y edición de planos de diferentes autores, mostrando los puntos en un lienzo (canvas).
 
 ## Demo
-Puedes ver una demostración en video de todas las funcionalidades de la aplicación [aquí](img/media/DEMO-APICLIENT.mp4). El video muestra cómo seleccionar autores, visualizar y editar planos, crear nuevos planos, y añadir nuevos autores.
+Puedes ver una demostración en video de todas las funcionalidades de la aplicación. El video muestra cómo seleccionar autores, visualizar y editar planos, crear nuevos planos, y añadir nuevos autores.
+
+
+https://github.com/user-attachments/assets/7e26da43-64f5-49e6-a578-9e5cb7e1405b
+
 
 ## Funcionalidad del Cliente Web
 
